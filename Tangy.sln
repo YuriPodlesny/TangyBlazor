@@ -3,7 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33627.172
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TangyWeb_Server", "TangyWeb_Server\TangyWeb_Server.csproj", "{36B3E8FB-77C8-44CF-B193-E61EE06EDF09}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TangyWeb_Server", "TangyWeb_Server\TangyWeb_Server.csproj", "{36B3E8FB-77C8-44CF-B193-E61EE06EDF09}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6DFA8914-79D1-447F-B928-25CB9E8D8945} = {6DFA8914-79D1-447F-B928-25CB9E8D8945}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TangyWeb_Client", "TangyWeb_Client\TangyWeb_Client.csproj", "{6A2E6AC1-71A8-464E-B3EC-37FD232ABDA4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tangy_Models", "Tangy_Models\Tangy_Models.csproj", "{6DFA8914-79D1-447F-B928-25CB9E8D8945}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +22,14 @@ Global
 		{36B3E8FB-77C8-44CF-B193-E61EE06EDF09}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36B3E8FB-77C8-44CF-B193-E61EE06EDF09}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{36B3E8FB-77C8-44CF-B193-E61EE06EDF09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A2E6AC1-71A8-464E-B3EC-37FD232ABDA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A2E6AC1-71A8-464E-B3EC-37FD232ABDA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A2E6AC1-71A8-464E-B3EC-37FD232ABDA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A2E6AC1-71A8-464E-B3EC-37FD232ABDA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DFA8914-79D1-447F-B928-25CB9E8D8945}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DFA8914-79D1-447F-B928-25CB9E8D8945}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DFA8914-79D1-447F-B928-25CB9E8D8945}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DFA8914-79D1-447F-B928-25CB9E8D8945}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
