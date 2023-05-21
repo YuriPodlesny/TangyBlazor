@@ -1,25 +1,83 @@
 ﻿@page "/category/create"
+@page "/category/edit/{id:int}"
+
+@inject ICategoryRepository _categoryRepository
+@inject NavigationManager _navigationManager
 
 <div class="row my-2">
     <h3 class="card-title text-primary mb-3 ml-3">@Title Category</h3>
 
     <div class="col-10">
-        <EditForm Model="Category">
-            <form>
-                <label>Name</label>
-                <InputText @bind-Value="Category.Name" class="form-control"></InputText>
-            </form>
-            <div class="py-2">
-                <button class="btn btn-primary">@Title</button>
-                <NavLink href="category" class="btn btn-secondary">Back to Index</NavLink>
+        @if (IsLoading)
+        {
+            <div class="text-center">
+                <img src="/images/loading.gif">
             </div>
-        </EditForm>
+        }
+        else
+        {
+            <EditForm Model="Category" OnValidSubmit="UpsertCategory">
+                <DataAnnotationsValidator />
+                @*<ValidationSummary />*@
+                <form>
+                    <label>Name</label>
+                    <InputText @bind-Value="Category.Name" class="form-control"></InputText>
+                    <ValidationMessage For="()=>Category.Name"></ValidationMessage>
+                </form>
+                <div class="py-2">
+                    <button class="btn btn-primary">@Title</button>
+                    <NavLink href="category" class="btn btn-secondary">Back to Index</NavLink>
+                </div>
+            </EditForm>
+        }
     </div>
 </div>
 
 
 
 @code {
+    [Parameter]
+    public int Id { get; set; }
+
+
     private CategoryDTO Category { get; set; } = new CategoryDTO();
     private string Title { get; set; } = "Create";
+    public bool IsLoading { get; set; } = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if(Id == 0)
+        {
+            //create
+            IsLoading = false;
+        }
+        else
+        {
+            //update
+            Title = "Update";
+            await Task.Run(LoadCategories);
+        }
+    }
+
+    private void LoadCategories()
+    {
+        Category = _categoryRepository.Get(Id);
+        IsLoading = false;
+    }
+
+
+    private void UpsertCategory()
+    {
+        if(Category.Id == 0)
+        {
+            //create
+            _categoryRepository.Create(Category);
+        }
+        else
+        {
+            //update
+            _categoryRepository.Update(Category);
+        }
+        _navigationManager.NavigateTo("category");
+    }
 }
