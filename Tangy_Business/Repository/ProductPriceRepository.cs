@@ -57,7 +57,7 @@ namespace Tangy_Business.Repository
             if (id != null && id > 0)
             {
                 return _mapper.Map<IEnumerable<ProductPrice>, IEnumerable<ProductPriceDTO>>
-                    (_db.ProductPrices.Where(u => u.Id == id));
+                    (_db.ProductPrices.Where(u => u.ProductId == id));
             }
             else
             {

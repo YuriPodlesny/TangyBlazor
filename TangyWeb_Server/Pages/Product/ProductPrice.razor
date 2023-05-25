@@ -23,20 +23,62 @@ else
             <img src="@Product.ImageUrl" class="w-100">
         </div>
     </div>
+    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" class="mt-2 mb-4" Text="Add New Order" Click="@InsertRow" Disabled=@(priceToInsert != null || priceToUpdate != null) />
+<RadzenDataGrid @ref="priceGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true" PageSize="5" AllowSorting="true" EditMode="DataGridEditMode.Single"
+            Data="@ProductPrices" TItem="ProductPriceDTO" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" Sort="@Reset" Page="@Reset" Filter="@Reset" ColumnWidth="200px">
+    <Columns>
+        <RadzenDataGridColumn TItem="ProductPriceDTO" Property="Id" Title="ID" Width="120px" />
+        <RadzenDataGridColumn TItem="ProductPriceDTO" Property="Size" Title="Size" Width="120px">
+            <EditTemplate Context="price">
+                <RadzenDropDown @bind-Value="price.Size" Data="@SizeList" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="ProductPriceDTO" Property="Price" Title="Price" Width="120px">
+            <Template Context="price">
+                @String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", price.Price)
+            </Template>
+            <EditTemplate Context="price">
+                <RadzenNumeric @bind-Value="price.Price" Style="width:100%" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+
+        <RadzenDataGridColumn TItem="ProductPriceDTO" Context="price" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Width="156px">
+            <Template Context="price">
+                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(price))" @onclick:stopPropagation="true">
+                </RadzenButton>
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRow(price))"  @onclick:stopPropagation="true">
+                </RadzenButton>
+            </Template>
+            <EditTemplate Context="price">
+                <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => SaveRow(price))">
+                </RadzenButton>
+                <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@((args) => CancelEdit(price))">
+                </RadzenButton>
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRow(price))">
+                </RadzenButton>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
 }
-
-
-
-
-
 
 
 @code {
     [Parameter]
     public int Id { get; set; }
+    RadzenDataGrid<ProductPriceDTO> priceGrid;
     private ProductDTO Product { get; set; } = new();
     private IEnumerable<ProductPriceDTO> ProductPrices { get; set; } = new List<ProductPriceDTO>();
     private bool IsLoading { get; set; } = true;
+
+
+    ProductPriceDTO priceToInsert;
+    ProductPriceDTO priceToUpdate;
+
+    IEnumerable<String> SizeList = new List<String>()
+    {
+        "Small","Medium","Large","8oz","16oz","24oz"
+    };
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -49,5 +91,93 @@ else
             IsLoading = false;
             StateHasChanged();
         }
+    }
+
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    await base.OnInitializedAsync();
+    //    Product = await _productRepository.Get(Id);
+    //    ProductPrices = await _productPriceRepository.GetAll(Id);
+    //    IsLoading = false;
+    //}
+
+
+    void Reset()
+    {
+        priceToInsert = null;
+        priceToUpdate = null;
+    }
+
+    async Task EditRow(ProductPriceDTO price)
+    {
+        price.ProductId = Id;
+        priceToUpdate = price;
+        await priceGrid.EditRow(price);
+    }
+
+    void OnUpdateRow(ProductPriceDTO price)
+    {
+        price.ProductId = Id;
+        if(price == priceToInsert)
+        {
+            priceToInsert = null;
+        }
+        priceToUpdate = null;
+        _productPriceRepository.Update(price);
+    }
+
+    async Task SaveRow(ProductPriceDTO price)
+    {
+        price.ProductId = Id;
+        await priceGrid.UpdateRow(price);
+    }
+
+    void CancelEdit(ProductPriceDTO price)
+    {
+        price.ProductId = Id;
+        if(price == priceToInsert)
+        {
+            priceToInsert = null;
+        }
+        priceToUpdate = null;
+        priceGrid.CancelEditRow(price);
+        var priceEntry = _productPriceRepository.Update(price);
+    }
+
+    async Task DeleteRow(ProductPriceDTO price)
+    {
+        price.ProductId = Id;
+        if(price == priceToInsert)
+        {
+            priceToInsert = null;
+        }
+        if(price == priceToUpdate)
+        {
+            priceToUpdate = null;
+        }
+        if (ProductPrices.Contains(price))
+        {
+            await _productPriceRepository.Delete(price.Id);
+            await priceGrid.Reload();
+        }
+        else
+        {
+            priceGrid.CancelEditRow(price);
+            await priceGrid.Reload();
+        }
+        await OnAfterRenderAsync(true);
+    }
+
+    async Task InsertRow()
+    {
+        priceToInsert = new ProductPriceDTO();
+        await priceGrid.InsertRow(priceToInsert);
+    }
+
+    async void OnCreateRow(ProductPriceDTO price)
+    {
+        await _productPriceRepository.Create(price);
+        priceToInsert = null;
+        await OnAfterRenderAsync(true);
     }
 }
